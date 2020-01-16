@@ -31,3 +31,19 @@ ORDER BY [Total Ventas] DESC, [SalesPersonID]
 SELECT *
 FROM [Sales].[SalesOrderHeader]
 where [OnlineOrderFlag] = 0 and [SalesPersonID] is null
+
+SELECT [ProductSubcategoryID], [Class], count(*) Productos
+FROM [Production].[Product]
+GROUP BY [ProductSubcategoryID], [Class]
+
+
+SELECT ISNULL(cast([ProductSubcategoryID] as varchar), '(Sin subcategoria)') [Sub categoria], 
+	SUM(IIF(Class is NULL, 1, 0)) [Sin Gama],
+	COUNT(IIF(Class = 'L', Class, NULL)) Baja,
+	SUM(IIF(Class = 'M', 1, 0)) Media, 
+	SUM(IIF(Class = 'H', 1, 0)) Alta,
+	COUNT(class) [Total con gama],
+	COUNT(class) Total
+FROM Production.Product
+GROUP BY [ProductSubcategoryID]
+ORDER BY [ProductSubcategoryID]
