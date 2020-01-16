@@ -9,7 +9,7 @@ SELECT DATEPART(YEAR, [DueDate]) Año, DATEPART(Q, [DueDate]) Trimestrales,
 FROM [Sales].[SalesOrderHeader]
 WHERE Status not in (4, 6)
 GROUP BY DATEPART(YEAR, [DueDate]), DATEPART(Q, [DueDate])
-ORDER BY DATEPART(YEAR, [DueDate]), DATEPART(Q, [DueDate])
+ORDER BY Año, Trimestrales
 
 SELECT DATEPART(YEAR, [DueDate]) Año, DATEPART(MONTH, [DueDate]) Mes, 
 	sum([TotalDue]) [Total Ventas],
@@ -19,18 +19,18 @@ GROUP BY DATEPART(YEAR, [DueDate]), DATEPART(MONTH, [DueDate])
 HAVING count(*) > 1000
 ORDER BY DATEPART(YEAR, [DueDate]), DATEPART(MONTH, [DueDate])
 
-SELECT [SalesPersonID], 
-	--isnull(cast([SalesPersonID] as varchar), 'On line') Vendedor,
+SELECT --[SalesPersonID] Vendedor, 
+	isnull(cast([SalesPersonID] as varchar), 'On line') Vendedor,
 	sum([TotalDue]) [Total Ventas],
 	count(*) [Número Pedidos]
 FROM [Sales].[SalesOrderHeader]
-WHERE [SalesPersonID] IS NOT NULL
+--WHERE [SalesPersonID] IS NOT NULL
 GROUP BY [SalesPersonID]
 ORDER BY [Total Ventas] DESC, [SalesPersonID]
 
 SELECT *
 FROM [Sales].[SalesOrderHeader]
-where [OnlineOrderFlag] = 0 and [SalesPersonID] is null
+where [OnlineOrderFlag] = 1 and [SalesPersonID] is not null
 
 SELECT [ProductSubcategoryID], [Class], count(*) Productos
 FROM [Production].[Product]
@@ -43,7 +43,7 @@ SELECT ISNULL(cast([ProductSubcategoryID] as varchar), '(Sin subcategoria)') [Su
 	SUM(IIF(Class = 'M', 1, 0)) Media, 
 	SUM(IIF(Class = 'H', 1, 0)) Alta,
 	COUNT(class) [Total con gama],
-	COUNT(class) Total
+	COUNT(*) Total
 FROM Production.Product
 GROUP BY [ProductSubcategoryID]
 ORDER BY [ProductSubcategoryID]
