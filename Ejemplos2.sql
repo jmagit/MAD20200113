@@ -61,3 +61,37 @@ FROM [Sales].[SalesOrderHeader]
 --WHERE [SalesPersonID] IS NOT NULL
 GROUP BY [SalesPersonID]
 ORDER BY [Total Ventas] DESC, [SalesPersonID]
+
+select	iif(GROUPING([ProductSubcategoryID]) = 1, 'Total', cast([ProductSubcategoryID] as varchar)) Subcategory, 
+	iif(GROUPING([Class]) = 1, 'Total', cast([Class] as varchar)) Gama, 
+		[Class], [Style], count(*) Cuenta, 
+	GROUPING([ProductSubcategoryID]) TotalCat,
+	GROUPING([Class]) TotalClass,
+	GROUPING_ID([ProductSubcategoryID], [Class], [Style])
+from [Production].[Product]
+--where [ProductSubcategoryID] is not null
+GROUP BY rollup( [ProductSubcategoryID], [Class], [Style])
+order by [ProductSubcategoryID], GROUPING([ProductSubcategoryID]), [Class], GROUPING([Class]), [Style]
+
+select	iif(GROUPING([ProductSubcategoryID]) = 1, 'Total', cast([ProductSubcategoryID] as varchar)) Subcategory, 
+	iif(GROUPING([Class]) = 1, 'Total', cast([Class] as varchar)) Gama, 
+		[Class], [Style], count(*) Cuenta, 
+	GROUPING([ProductSubcategoryID]) TotalCat,
+	GROUPING([Class]) TotalClass,
+	GROUPING_ID([ProductSubcategoryID], [Class], [Style])
+from [Production].[Product]
+--where [ProductSubcategoryID] is not null
+GROUP BY rollup( [ProductSubcategoryID],  [Class], [Style])
+order by GROUPING([ProductSubcategoryID]), [ProductSubcategoryID], GROUPING([Class]),  [Class],[Style]
+
+(SELECT YEAR(DueDate) Año, DATEPART(QUARTER, [DueDate]) Trimestre, 
+	[TerritoryID] Zona, cast([SalesPersonID] as varchar) Vendedor, sum([TotalDue]) [Ventas]
+FROM Sales.SalesOrderHeader
+GROUP BY YEAR(DueDate), DATEPART(QUARTER, [DueDate]), [TerritoryID], [SalesPersonID] 
+ORDER BY Año, Trimestre, Zona, Vendedor)
+UNION
+(SELECT YEAR(DueDate) Año, DATEPART(QUARTER, [DueDate]) Trimestre, 
+	[TerritoryID] Zona, 'Total' Vendedor, sum([TotalDue]) [Ventas]
+FROM Sales.SalesOrderHeader
+GROUP BY YEAR(DueDate), DATEPART(QUARTER, [DueDate]), [TerritoryID] 
+ORDER BY Año, Trimestre, Zona)

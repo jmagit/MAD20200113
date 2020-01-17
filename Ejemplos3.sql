@@ -66,3 +66,87 @@ SELECT  ped.SalesOrderID, p.FirstName + ' ' + p.LastName Vendedor
 FROM    Person.Person p , HumanResources.Employee AS e, Sales.SalesPerson v , Sales.SalesOrderHeader ped
 WHERE p.BusinessEntityID = e.BusinessEntityID and e.BusinessEntityID = v.BusinessEntityID
 	and ped.SalesPersonID = v.BusinessEntityID
+
+SELECT DISTINCT cp.FirstName + ' ' + cp.LastName Cliente, prod.name Producto
+FROM Sales.Customer c
+	inner join Person.Person cp on c.PersonID = cp.BusinessEntityID
+	inner join Sales.SalesOrderHeader p on p.CustomerID = c.CustomerID
+	inner join Sales.SalesOrderDetail ld ON p.SalesOrderID = ld.SalesOrderID
+	inner join Production.Product prod on ld.ProductID = prod.ProductID
+order by Cliente, Producto
+
+SELECT count(*)
+FROM Sales.Customer c
+	inner join Person.Person cp on c.PersonID = cp.BusinessEntityID
+	inner join Sales.SalesOrderHeader p on p.CustomerID = c.CustomerID
+	inner join Sales.SalesOrderDetail ld ON p.SalesOrderID = ld.SalesOrderID
+	inner join (select * from Production.Product where ProductSubcategoryID is not null) prod on ld.ProductID = prod.ProductID
+
+select count(*) from Production.Product where ProductSubcategoryID is not null
+
+SELECT * FROM (VALUES (1, 'Caro'), (2, 'Normal'), (3, 'Barato')) AS Tipo(Id, Name);
+
+SELECT  p.Name, [ListPrice], tipo, Tipo.Name	
+FROM (SELECT  Name, [ListPrice], NTILE(3) over (order by [ListPrice] desc) tipo
+	FROM Production.Product ) p 
+	INNER JOIN (VALUES (1, 'Caro'), (2, 'Normal'), (3, 'Barato')) AS Tipo(Id, Name)
+	ON p.tipo = Tipo.Id
+
+SELECT [ProductSubcategoryID], [Class], count(*) Productos
+FROM [Production].[Product]
+GROUP BY [ProductSubcategoryID], [Class]
+
+
+SELECT ISNULL(cast([ProductSubcategoryID] as varchar), '(Sin subcategoria)') [Sub categoria], 
+	SUM(IIF(Class is NULL, 1, 0)) [Sin Gama],
+	COUNT(IIF(Class = 'L', Class, NULL)) Baja,
+	SUM(IIF(Class = 'M', 1, 0)) Media, 
+	SUM(IIF(Class = 'H', 1, 0)) Alta,
+	COUNT(class) [Total con gama],
+	COUNT(*) Total
+FROM Production.Product
+GROUP BY [ProductSubcategoryID]
+ORDER BY [ProductSubcategoryID]
+
+select  *
+FROM  (
+	SELECT [ProductSubcategoryID], [Class]
+	FROM [Production].[Product]
+) p 
+PIVOT ( 
+count(ProductSubcategoryID)  
+FOR Class  IN (L,  M, X )  
+) AS r
+
+select FirstName + ' ' + LastName Empleado
+FROM [Person].[Person]
+where BusinessEntityID in (
+	select BusinessEntityID FROM [HumanResources].[Employee]
+)
+
+select FirstName + ' ' + LastName Empleado
+FROM [Person].[Person]
+where EXISTS (
+	select * FROM [HumanResources].[Employee] e where e.BusinessEntityID = BusinessEntityID
+)
+select FirstName + ' ' + LastName Empleado
+FROM [Person].[Person] p inner join [HumanResources].[Employee] e
+	on e.BusinessEntityID = p.BusinessEntityID
+
+USE [AdventureWorks2017]
+GO
+
+SELECT [SalesOrderID]
+      ,[SalesOrderDetailID]
+      ,[CarrierTrackingNumber]
+      ,[OrderQty]
+      ,(select max(p.name) from Production.Product p where p.ProductID = [ProductID]) + 'Algo' Producto
+      ,[SpecialOfferID]
+      ,[UnitPrice]
+      ,[UnitPriceDiscount]
+      ,[LineTotal]
+      ,[rowguid]
+      ,[ModifiedDate]
+  FROM [Sales].[SalesOrderDetail]
+  where [SalesOrderID] = 43659
+
