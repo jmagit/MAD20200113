@@ -37,3 +37,20 @@ EXEC sys.sp_bindefault @defname=N'[dbo].[Cero]', @objname=N'[dbo].[Importe]' , @
 GO
 EXEC sys.sp_bindrule @rulename=N'[dbo].[Precio]', @objname=N'[dbo].[Importe]' , @futureonly='futureonly'
 GO
+
+
+/****** Script para el comando SelectTopNRows de SSMS  ******/
+SELECT TOP (1000) [id]
+      ,[kkkk]
+      ,[otra]
+      ,[guid]
+      ,[version]
+      ,[pvd]
+      ,[xml]
+	  ,[xml].value('(//direccion/provincia)[1]', 'varchar(100)')
+  FROM [Curso].[dbo].[MiTabla]
+  --where [xml].value('(//direccion/provincia)[1]', 'varchar(100)') like 'B%'
+
+  --update [Curso].[dbo].[MiTabla]
+  --set [xml] = '<Personas><Persona><direccion><provincia>Barcelona</provincia></direccion></Persona></Personas>'
+  --where id = 3
