@@ -135,3 +135,46 @@ END
 GO
 select dbo.TotalOrder (43659)
 GO
+CREATE TABLE #LibrosTmp (
+	[idProduto] [int] NOT NULL,
+	[Algo] [nchar](10) NULL,
+ CONSTRAINT [PK_Libros] PRIMARY KEY CLUSTERED 
+(
+	[idProduto] ASC
+)
+)
+
+insert into #LibrosTmp
+select * from [dbo].[Libros]
+select * from #LibrosTmp
+--drop table #LibrosTmp
+
+
+alter FUNCTION VistaParam
+(	
+	@id int, @descuento decimal(10,2)
+)
+RETURNS TABLE 
+AS
+RETURN 
+(
+	-- Add the SELECT statement with parameter references here
+	SELECT        dbo.MiTabla.id, dbo.MiTabla.id * @descuento Descuento, dbo.MiTabla.kkkk, MiTabla_1.otra, MiTabla_1.kkkk AS Expr1, MiTabla_1.id AS Expr2
+	FROM            dbo.MiTabla INNER JOIN
+                         dbo.MiTabla AS MiTabla_1 ON dbo.MiTabla.id = MiTabla_1.id
+	where MiTabla_1.id = @id
+
+)
+GO
+
+select * from Libros l cross apply dbo.VistaParam(l.idProduto, 0) f
+
+
+declare @mitabla TABLE (
+	[idProduto] [int] NOT NULL,
+	[Algo] [nchar](10) NULL
+)
+
+insert into @mitabla
+select * from [dbo].[Libros]
+select * from @mitabla
